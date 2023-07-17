@@ -5,12 +5,15 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Map;
 
+// kakao는 openid 와 code와 다르다
+public class KakaoUser extends OAuth2ProviderUser{
 
-public class NaverUser extends OAuth2ProviderUser{
+    private Map<String, Object> otherAttributes;
 
-    public NaverUser(Attributes attributes, OAuth2User oAuth2User, ClientRegistration clientRegistration) {
+    public KakaoUser(Attributes attributes, OAuth2User oAuth2User, ClientRegistration clientRegistration) {
         // 네이버는 response 한 뎁스가 더 있음
         super(attributes.getSubAttributes(), oAuth2User, clientRegistration);
+        this.otherAttributes = attributes.getOtherAttributes();
     }
 
     @Override
@@ -22,11 +25,12 @@ public class NaverUser extends OAuth2ProviderUser{
     @Override
     public String getUsername() {
         // 실제 아이디
-        return (String) getAttributes().get("email");
+        return (String) otherAttributes.get("nickname");
     }
 
     @Override
     public String getPicture() {
-        return (String) getAttributes().get("profile_image");
+        return (String) otherAttributes.get("profile_image_url");
     }
+
 }

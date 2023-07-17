@@ -125,6 +125,10 @@ h2 {
     background: #ea4335; }
     .social-login a.google:hover {
       background: #d40404; }
+  .social-login a.kakao {
+    background: #f7ff09; }
+    .social-login a.kakao:hover {
+      background: #f7ff09; }
 
 .control {
   display: block;

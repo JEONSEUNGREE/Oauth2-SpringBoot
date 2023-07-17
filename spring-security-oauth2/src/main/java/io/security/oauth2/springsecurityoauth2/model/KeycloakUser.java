@@ -20,4 +20,9 @@ public class KeycloakUser extends OAuth2ProviderUser{
         // 실제 아이디
         return (String) getAttributes().get("preferred_username");
     }
+
+    @Override
+    public String getPicture() {
+        return null;
+    }
 }

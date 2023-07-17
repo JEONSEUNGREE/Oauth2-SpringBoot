@@ -1,7 +1,8 @@
 package io.security.oauth2.springsecurityoauth2.service;
 
 
-import io.security.oauth2.springsecurityoauth2.model.GoogleUser;
+import io.security.oauth2.springsecurityoauth2.common.converters.ProviderUserRequest;
+import io.security.oauth2.springsecurityoauth2.model.PrincipalUser;
 import io.security.oauth2.springsecurityoauth2.model.ProviderUser;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -23,12 +24,14 @@ public class CustomOAuth2UserService extends AbstractOAuth2UserService implement
 
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
-        ProviderUser providerUser = super.providerUser(clientRegistration, oAuth2User);
+        ProviderUserRequest providerUserRequest = new ProviderUserRequest(clientRegistration, oAuth2User);
+
+        ProviderUser providerUser = providerUser(providerUserRequest);
 
         // 회원가입
 
         super.register(providerUser, userRequest);
 
-        return oAuth2User;
+        return new PrincipalUser(providerUser);
     }
 }

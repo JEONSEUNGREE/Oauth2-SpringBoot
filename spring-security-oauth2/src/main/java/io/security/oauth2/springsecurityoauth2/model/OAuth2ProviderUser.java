@@ -51,4 +51,9 @@ public abstract class OAuth2ProviderUser implements ProviderUser {
     public Map<String, Object> getAttributes() {
         return attributes;
     }
+
+    @Override
+    public OAuth2User getOAuth2User() {
+        return oAuth2User;
+    }
 }

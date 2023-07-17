@@ -1,6 +1,7 @@
 package io.security.oauth2.springsecurityoauth2.controller;
 
 
+import io.security.oauth2.springsecurityoauth2.model.PrincipalUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -15,32 +16,11 @@ import java.util.Map;
 public class IndexController {
 
     @GetMapping("/")
-    public String index(Model model, Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth2User) {
+    public String index(Model model, Authentication authentication, @AuthenticationPrincipal PrincipalUser principalUser) {
 
-        OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
+        model.addAttribute("user", authentication != null ? principalUser.getName() : "");
 
-        if (oAuth2AuthenticationToken != null) {
-            Map<String, Object> attributes = oAuth2User.getAttributes();
-
-            String name = "";
-
-            if (oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().equals("naver")) {
-                Map<String, Object> response = (Map<String, Object>) attributes.get("response");
-                name = (String) response.get("name");
-            }else {
-                name = (String) attributes.get("name");
-            }
-
-            model.addAttribute("user", name);
-
-        }
         return "index";
-    }
-
-    @GetMapping("/login")
-    public String loginPage() {
-
-        return "login";
     }
 
 }

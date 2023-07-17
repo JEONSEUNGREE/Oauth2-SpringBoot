@@ -1,18 +1,16 @@
-package io.security.oauth2.springsecurityoauth2;
+package io.security.oauth2.springsecurityoauth2.config.security;
 
+import io.security.oauth2.springsecurityoauth2.common.authority.CustomGrantedAuthoritiesMapper;
 import io.security.oauth2.springsecurityoauth2.service.CustomOAuth2UserService;
 import io.security.oauth2.springsecurityoauth2.service.CustomOidcUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 public class OAuth2ClientConfig {
@@ -38,8 +36,8 @@ public class OAuth2ClientConfig {
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated());
 
-//        http
-//                .formLogin().loginPage("/login").loginProcessingUrl("/loginProc").defaultSuccessUrl("/").permitAll();
+        http
+                .formLogin().loginPage("/login").loginProcessingUrl("/loginProc").defaultSuccessUrl("/").permitAll();
 
         http
                 .oauth2Login(oauth2 -> oauth2
@@ -47,15 +45,14 @@ public class OAuth2ClientConfig {
                         .userService(customOAUth2UserService)
                         .oidcUserService(customOidcUserService)));
 
+//        http
+//                .logout().logoutSuccessUrl("/");
+
         http
-                .logout().logoutSuccessUrl("/");
+                .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
+
 
         return http.build();
-    }
-
-    @Bean
-    public GrantedAuthoritiesMapper customAuthorityMapper() {
-        return new CustomGrantedAuthoritiesMapper();
     }
 
 

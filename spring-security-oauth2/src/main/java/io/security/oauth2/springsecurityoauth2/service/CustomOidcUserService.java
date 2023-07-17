@@ -1,15 +1,14 @@
 package io.security.oauth2.springsecurityoauth2.service;
 
+import io.security.oauth2.springsecurityoauth2.common.converters.ProviderUserRequest;
+import io.security.oauth2.springsecurityoauth2.model.PrincipalUser;
 import io.security.oauth2.springsecurityoauth2.model.ProviderUser;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,16 +19,23 @@ public class CustomOidcUserService extends AbstractOAuth2UserService implements 
 
         ClientRegistration clientRegistration = userRequest.getClientRegistration();
 
-        OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
+        // change user-name-attribute when use openid connect
+//        ClientRegistration.withClientRegistration(userRequest.getClientRegistration())
+//                .userNameAttributeName("sub")
+//                .build();
 
-        OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
+        OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = new OidcUserService();
 
-        ProviderUser providerUser = super.providerUser(clientRegistration, oAuth2User);
+        OidcUser oidcUser = oidcUserService.loadUser(userRequest);
+
+        ProviderUserRequest providerUserRequest = new ProviderUserRequest(clientRegistration, oidcUser);
+
+        ProviderUser providerUser = providerUser(providerUserRequest);
 
         // 회원가입
 
         super.register(providerUser, userRequest);
 
-        return null;
+        return new PrincipalUser(providerUser);
     }
 }
