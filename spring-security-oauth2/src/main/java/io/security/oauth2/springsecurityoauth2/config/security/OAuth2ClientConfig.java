@@ -1,6 +1,5 @@
 package io.security.oauth2.springsecurityoauth2.config.security;
 
-import io.security.oauth2.springsecurityoauth2.common.authority.CustomGrantedAuthoritiesMapper;
 import io.security.oauth2.springsecurityoauth2.service.CustomOAuth2UserService;
 import io.security.oauth2.springsecurityoauth2.service.CustomOidcUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,15 +7,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 @Configuration
 public class OAuth2ClientConfig {
 
     @Autowired
-    private CustomOAuth2UserService customOAUth2UserService;
+    private CustomOAuth2UserService customOAuth2UserService;
 
     @Autowired
     private CustomOidcUserService customOidcUserService;
@@ -24,6 +23,7 @@ public class OAuth2ClientConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web -> web.ignoring().antMatchers().antMatchers("/static/js/*", "static/images/**", "/static/css/**", "/static/icomoon/**"));
+        // static 파일들 허용
     }
 
 
@@ -33,7 +33,7 @@ public class OAuth2ClientConfig {
                 .authorizeRequests(authRequest -> authRequest
 //                .antMatchers("/api/user").access("hasAnyRole('SCOPE_profile', 'SCOPE_email')")
 //                .antMatchers("/api/oidc").access("hasAnyRole('SCOPE_openid')")
-                .antMatchers("/").permitAll()
+                .antMatchers("/").permitAll() // 테스트를 위해서 모든 요청 허용
                 .anyRequest().authenticated());
 
         http
@@ -41,19 +41,20 @@ public class OAuth2ClientConfig {
 
         http
                 .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/") 필요시 로그인 페이지 변경 (SPA는 페이지 이동 자체가 기본 원칙 위배로 사용X)
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                        .userService(customOAUth2UserService)
-                        .oidcUserService(customOidcUserService)));
+                        .userService(customOAuth2UserService) // 기본적인 authorization_code 방식 서비스 커스텀
+                        .oidcUserService(customOidcUserService))); // openid connect 방식 서비스 커스텀
 
-//        http
-//                .logout().logoutSuccessUrl("/");
+        http
+                .logout().logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler()); // 로그아웃 원하는 작업시 커스텀
 
         http
                 .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
 
-
         return http.build();
     }
+
 
 
     //##############################oauth2Client는 인가만 적용함##########################################

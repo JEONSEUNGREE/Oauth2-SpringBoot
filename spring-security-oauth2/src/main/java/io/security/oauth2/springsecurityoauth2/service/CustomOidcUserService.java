@@ -19,11 +19,6 @@ public class CustomOidcUserService extends AbstractOAuth2UserService implements 
 
         ClientRegistration clientRegistration = userRequest.getClientRegistration();
 
-        // change user-name-attribute when use openid connect
-//        ClientRegistration.withClientRegistration(userRequest.getClientRegistration())
-//                .userNameAttributeName("sub")
-//                .build();
-
         OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = new OidcUserService();
 
         OidcUser oidcUser = oidcUserService.loadUser(userRequest);
